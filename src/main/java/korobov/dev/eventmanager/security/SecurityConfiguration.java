@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -66,10 +67,23 @@ public class SecurityConfiguration {
                                 .requestMatchers(HttpMethod.POST, "/users").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/users/auth").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/users/{userId}").hasAuthority("ADMIN")
+
                                 .requestMatchers(HttpMethod.POST, "/locations").hasAuthority("ADMIN")
                                 .requestMatchers(HttpMethod.DELETE, "/locations/{locationId}").hasAuthority("ADMIN")
                                 .requestMatchers(HttpMethod.PUT, "/locations/{locationId}").hasAuthority("ADMIN")
                                 .requestMatchers(HttpMethod.GET, "/locations/**").hasAnyAuthority("ADMIN", "USER")
+
+                                .requestMatchers(HttpMethod.POST, "/events").hasAuthority("USER")
+                                .requestMatchers(HttpMethod.DELETE, "/events/{locationId}").hasAnyAuthority("ADMIN", "USER")
+                                .requestMatchers(HttpMethod.PUT, "/events/{locationId}").hasAnyAuthority("ADMIN", "USER")
+                                .requestMatchers(HttpMethod.GET, "/events/**").hasAnyAuthority("ADMIN", "USER")
+                                .requestMatchers(HttpMethod.POST, "/events/search").hasAnyAuthority("ADMIN", "USER")
+                                .requestMatchers(HttpMethod.GET, "/events/my").hasAuthority("USER")
+
+                                .requestMatchers(HttpMethod.POST, "/events/registrations/").hasAuthority("USER")
+                                .requestMatchers(HttpMethod.DELETE, "/events/registrations/cancel/").hasAuthority("USER")
+                                .requestMatchers(HttpMethod.GET, "/events/registrations/my").hasAuthority("USER")
+
                                 .anyRequest().authenticated())
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

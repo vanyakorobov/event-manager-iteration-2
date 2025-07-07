@@ -2,9 +2,9 @@ package korobov.dev.eventmanager.security;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import korobov.dev.eventmanager.users.domain.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import korobov.dev.eventmanager.users.domain.User;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;

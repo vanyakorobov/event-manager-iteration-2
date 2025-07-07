@@ -1,7 +1,7 @@
 package korobov.dev.eventmanager.users.db;
 
-import korobov.dev.eventmanager.users.domain.User;
 import org.springframework.stereotype.Component;
+import korobov.dev.eventmanager.users.domain.User;
 import korobov.dev.eventmanager.users.domain.UserRole;
 
 @Component

@@ -1,13 +1,13 @@
 package korobov.dev.eventmanager.users.api;
 
 import jakarta.validation.Valid;
-import korobov.dev.eventmanager.users.domain.AuthenticationService;
-import korobov.dev.eventmanager.users.domain.User;
-import korobov.dev.eventmanager.users.domain.UserRegistrationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import korobov.dev.eventmanager.users.domain.AuthenticationService;
+import korobov.dev.eventmanager.users.domain.User;
+import korobov.dev.eventmanager.users.domain.UserRegistrationService;
 import korobov.dev.eventmanager.users.domain.UserService;
 
 @RestController

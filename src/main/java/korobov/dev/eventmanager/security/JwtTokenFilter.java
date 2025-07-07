@@ -12,6 +12,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import korobov.dev.eventmanager.locations.LocationController;
+import korobov.dev.eventmanager.users.domain.UserService;
 
 import java.io.IOException;
 import java.util.List;
@@ -22,9 +24,12 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private final static Logger log = LoggerFactory.getLogger(JwtTokenFilter.class);
 
     private final JwtTokenManager jwtTokenManager;
+    private final UserService userService;
 
-    public JwtTokenFilter(JwtTokenManager jwtTokenManager) {
+    public JwtTokenFilter(JwtTokenManager jwtTokenManager,
+                          UserService userService) {
         this.jwtTokenManager = jwtTokenManager;
+        this.userService = userService;
     }
 
     @Override
@@ -49,8 +54,10 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         var login = jwtTokenManager.getLoginFromToken(jwtToken);
         var role = jwtTokenManager.getRoleFromToken(jwtToken);
 
+        var user = userService.getUserByLogin(login);
+
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-                login,
+                user,
                 null,
                 List.of(new SimpleGrantedAuthority(role))
         );

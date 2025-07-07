@@ -1,11 +1,11 @@
 package korobov.dev.eventmanager.users.domain;
 
 import jakarta.persistence.EntityNotFoundException;
-import korobov.dev.eventmanager.users.db.UserEntityMapper;
-import korobov.dev.eventmanager.users.db.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import korobov.dev.eventmanager.users.db.UserEntityMapper;
+import korobov.dev.eventmanager.users.db.UserRepository;
 
 @Service
 public class UserService {
