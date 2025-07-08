@@ -96,52 +96,64 @@ public class EventService {
     public Event updateEvent(Long eventId,
                              EventUpdateRequestDto updateRequest) {
         checkCurrentUserCanModifyEvent(eventId);
-        var event = eventRepository.findById(eventId).orElseThrow();
 
-        if (!event.getStatus().equals(EventStatus.WAIT_START)) {
-            throw new IllegalArgumentException("Cannot modify event in status: %s"
-                    .formatted(event.getStatus()));
+        var event = eventRepository.findById(eventId)
+                .orElseThrow();
+
+        if (!EventStatus.WAIT_START.equals(event.getStatus())) {
+            throw new IllegalArgumentException(
+                    "Cannot modify event in status: " + event.getStatus()
+            );
         }
 
-        if (updateRequest.maxPlaces() != null || updateRequest.locationId() != null) {
-            var locationId = Optional.ofNullable(updateRequest.locationId())
-                    .orElse(event.getLocationId());
-            var maxPlaces = Optional.ofNullable(updateRequest.maxPlaces())
-                    .orElse(event.getMaxPlaces());
-
-            var location = locationService.getLocationById(locationId);
-            if (location.capacity() < maxPlaces) {
-                throw new IllegalArgumentException(
-                        "Capacity of location less than maxPlaces: capacity=%s, maxPlaces=%s"
-                                .formatted(location.capacity(), maxPlaces)
-                );
-            }
+        // Локация теперь обязательна
+        if (updateRequest.locationId() == null) {
+            throw new IllegalArgumentException(
+                    "Cannot update event without location"
+            );
         }
+
+        if (updateRequest.maxPlaces() == null) {
+            throw new IllegalArgumentException("Cannot update event without maxPlaces");
+        }
+
+        var location = locationService.getLocationById(updateRequest.locationId());
+        int newMaxPlaces = Optional.ofNullable(updateRequest.maxPlaces())
+                .orElse(event.getMaxPlaces());
+        if (location.capacity() < newMaxPlaces) {
+            throw new IllegalArgumentException(
+                    String.format(
+                            "Capacity of location less than maxPlaces: capacity=%d, maxPlaces=%d",
+                            location.capacity(), newMaxPlaces
+                    )
+            );
+        }
+
 
         if (updateRequest.maxPlaces() != null
-            && event.getRegistrationList().size() > updateRequest.maxPlaces()) {
+                && event.getRegistrationList().size() > updateRequest.maxPlaces()) {
             throw new IllegalArgumentException(
-                    "Registration count is more than maxPlaces: regCount=%s, maxPlaces=%s"
-                    .formatted(event.getRegistrationList().size(), updateRequest.maxPlaces()));
+                    String.format(
+                            "Registration count is more than maxPlaces: regCount=%d, maxPlaces=%d",
+                            event.getRegistrationList().size(),
+                            updateRequest.maxPlaces()
+                    )
+            );
         }
 
-        Optional.ofNullable(updateRequest.name())
-                .ifPresent(event::setName);
-        Optional.ofNullable(updateRequest.maxPlaces())
-                .ifPresent(event::setMaxPlaces);
-        Optional.ofNullable(updateRequest.date())
-                .ifPresent(event::setDate);
-        Optional.ofNullable(updateRequest.cost())
-                .ifPresent(event::setCost);
-        Optional.ofNullable(updateRequest.duration())
-                .ifPresent(event::setDuration);
-        Optional.ofNullable(updateRequest.locationId())
-                .ifPresent(event::setLocationId);
 
-        eventRepository.save(event);
+        Optional.ofNullable(updateRequest.name()).ifPresent(event::setName);
+        Optional.ofNullable(updateRequest.maxPlaces()).ifPresent(event::setMaxPlaces);
+        Optional.ofNullable(updateRequest.date()).ifPresent(event::setDate);
+        Optional.ofNullable(updateRequest.cost()).ifPresent(event::setCost);
+        Optional.ofNullable(updateRequest.duration()).ifPresent(event::setDuration);
 
-        return entityMapper.toDomain(event);
+        event.setLocationId(updateRequest.locationId());
+
+        var saved = eventRepository.save(event);
+        return entityMapper.toDomain(saved);
     }
+
 
 
     private void checkCurrentUserCanModifyEvent(Long eventId) {

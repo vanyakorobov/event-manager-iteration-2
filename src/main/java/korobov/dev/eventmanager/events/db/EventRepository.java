@@ -65,6 +65,18 @@ public interface EventRepository extends JpaRepository<EventEntity, Long> {
         AND e.status = :status
     """, nativeQuery = true)
     List<Long> findEndedEventsWithStatus(@Param("status") EventStatus status);
+
+    @Modifying
+    @Transactional
+    @Query("""
+        UPDATE EventEntity e
+        SET e.status = :newStatus
+        WHERE e.id IN :ids
+    """)
+    int updateStatusByIds(
+            @Param("ids") List<Long> ids,
+            @Param("newStatus") EventStatus newStatus
+    );
 }
 
 
