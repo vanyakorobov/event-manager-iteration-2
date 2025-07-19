@@ -24,7 +24,7 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
 
-  postgres:
+  postgres-event-manager:
     image: postgres:14-alpine
     environment:
       POSTGRES_USER: user
@@ -33,7 +33,19 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata-em:/var/lib/postgresql/data
+
+  postgres-event-notificator:
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_USER: notif_user
+      POSTGRES_PASSWORD: notif_password
+      POSTGRES_DB: notificatordb
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata-notif:/var/lib/postgresql/data
 
 volumes:
-  pgdata: {}
+  pgdata-em: {}
+  pgdata-notif: {}
