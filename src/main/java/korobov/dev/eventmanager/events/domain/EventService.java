@@ -99,6 +99,14 @@ public class EventService {
         }
 
         eventRepository.changeEventStatus(eventId, EventStatus.CANCELLED);
+
+        EventChangeKafkaMessage msg = new EventChangeKafkaMessage();
+        msg.setEventId(eventId);
+        msg.setUsers(eventRepository.findSubscriberIdsByEventId(eventId));
+        msg.setOwnerId(authenticationService.getCurrentAuthenticatedUser().id());
+        msg.setChangedById(authenticationService.getCurrentAuthenticatedUser().id());
+        msg.setStatus(new FieldChange<>(oldStatus, EventStatus.CANCELLED)); // если в DTO есть поле status
+        eventChangeProducer.send(msg);
     }
 
     @Transactional
